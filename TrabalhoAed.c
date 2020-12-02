@@ -103,38 +103,43 @@ int removeItem(lista * li, int iden){
 void mostraLista(lista * li){
 	int c,t,i,j;
 	char sv[20];
-	printf("_________________________________________\n");
-	printf("| ID | NOME                | VALOR       |\n");
-	printf("|____|_____________________|_____________|\n");	
-	for(c=0;c< li->qtd;c++){
-		printf("| %d  | ",li->v[c].id);
-		if(strlen(li->v[c].nome) <= 20){
-			printf("%s",li->v[c].nome);
-			t = 20 - strlen(li->v[c].nome);
-			for(i=0;i<t;i++){
-				printf(" ");
+	if(li->qtd != 0){
+		printf("_________________________________________\n");
+		printf("| ID | NOME                | VALOR       |\n");
+		printf("|____|_____________________|_____________|\n");	
+		for(c=0;c< li->qtd;c++){
+			printf("| %d  | ",li->v[c].id);
+			if(strlen(li->v[c].nome) <= 20){
+				printf("%s",li->v[c].nome);
+				t = 20 - strlen(li->v[c].nome);
+				for(i=0;i<t;i++){
+					printf(" ");
+				}
+			}else{
+				for(j=0;j<20;j++){
+					printf("%c",li->v[c].nome[j]);	//Se a string for maior que 20 caracteres ela será truncada
+				} 
 			}
-		}else{
-			for(j=0;j<20;j++){
-				printf("%c",li->v[c].nome[j]);	//Se a string for maior que 20 caracteres ela será truncada
-			} 
+			sprintf(sv,"%.2f",li->v[c].valor);		//transforma um float em uma string
+			printf("| ");
+			if(strlen(sv) <= 12){
+				printf("%s",sv);
+				t = 12 - strlen(sv);
+				for(i=0;i<t;i++){
+					printf(" ");
+				}
+				printf("|\n");
+			}else{
+				for(j=0;j<12;j++){
+					printf("%c",sv[j]);
+				} 		
+			}	
+		printf("|____|_____________________|_____________|\n");	
 		}
-		sprintf(sv,"%.2f",li->v[c].valor);		//transforma um float em uma string
-		printf("| ");
-		if(strlen(sv) <= 12){
-			printf("%s",sv);
-			t = 12 - strlen(sv);
-			for(i=0;i<t;i++){
-				printf(" ");
-			}
-			printf("|\n");
-		}else{
-			for(j=0;j<12;j++){
-				printf("%c",sv[j]);
-			} 		
-		}	
-	printf("|____|_____________________|_____________|\n");	
+	}else{
+		printf("Vazio\n");
 	}
+	
 }
 /**
  * Grava uma lista em um arquivo txt
@@ -229,13 +234,63 @@ int verificaArquivo(FILE * arq,char m[]){
 return c;	
 }
 
+/**
+ * Encontra na lista o item com maior valor
+ * @param li  lista a ser verificada
+ * @param m  posicao onde foi encontrado o item com maior valor
+ * @return -1 Erro de alocação de memoria
+ * @return -2 Se a lista estiver vazia
+ */ 
+int MaiorItem(lista * li){
+	int c,maior,m=0;
+	if(li == NULL)return -1;
+	if(li->qtd != 0){
+		maior = li->v[0].valor;
+		for(c=0;c<li->qtd;c++){
+			if(maior < li->v[c].valor){
+				maior = li->v[c].valor;
+				m = c;
+			}
+		}
+	return m;
+	}else{
+		return -2;
+	}
+
+}
+
+/**
+ * Encontra na lista o item com menor valor
+ * @param li  lista a ser verificada
+ * @param m  posicao onde foi encontrado o item com menor valor
+ * @return -1 Erro de alocação de memoria
+ * @return -2 Se a lista estiver vazia
+ */ 
+int MenorItem(lista * li){
+	int c,menor,m=0;
+	if(li == NULL)return -1;
+	if(li->qtd != 0){
+		menor = li->v[0].valor;
+		for(c=0;c<li->qtd;c++){
+			if(menor > li->v[c].valor){
+				menor = li->v[c].valor;
+				m = c;
+			}
+		}
+	return m;
+	}else{
+		return -2;
+	}
+
+}
+
 int main(){
 FILE * arq;
 lista * li = NULL;
 char n[20];
 char m[20];
 char a[10];
-int ano,mes,estado,i;
+int ano,mes,estado,i,b,me,ma;
 float v;
 
 
@@ -262,12 +317,15 @@ printf("2 - Remover item com o id\n");
 printf("3 - Mostrar lista\n");
 printf("4 - Mostrar valor total dos itens\n");
 printf("5 - Mostrar a quantidade(s) de itens\n");
-printf("6 - Salvar\n");
-printf("7 - Sair\n");
+printf("6 - Buscar um item com um id\n");
+printf("7 - Encontrar o item com maior valor\n");
+printf("8 - Encontrar o item com menor valor\n");
+printf("9 - Salvar\n");
+printf("10 - Sair\n");
 while(1){
 	printf("Digite uma opcao :\n");
 	scanf("%d",&estado);
-	if(estado == 7)break;
+	if(estado == 10)break;
 	switch(estado){
 		case 1 :
 			printf("Nome do item :\n");
@@ -297,6 +355,35 @@ while(1){
 			printf("Quantidade(s) de iten(s): %d\n",qtdItens(li));
 		break;
 		case 6:
+			printf("Digite o id a ser buscado : \n");
+			scanf("%d",&i);
+			b = buscaItem(li,i);
+			if(b != -1){
+				printf("Item com id %d : %s %.2f\n",i,li->v[b].nome,li->v[b].valor);
+			}
+			else{
+				printf("Id nao encontrado\n");
+			}
+		break;
+		case 7:
+			ma = MaiorItem(li);
+			if(ma == -2){
+				printf("Lista vazia\n");
+			}
+			else if(ma >= 0){
+				printf("O item com maior valor e : %d %s %.2f\n",li->v[ma].id,li->v[ma].nome,li->v[ma].valor);
+			}
+		break;
+		case 8:
+			me = MenorItem(li);
+			if(ma == -2){
+				printf("Lista vazia\n");
+			}
+			else if(ma >= 0){
+				printf("O item com menor valor e : %d %s %.2f\n",li->v[me].id,li->v[me].nome,li->v[me].valor);
+			}
+		break;
+		case 9:
 			gravaLista(arq,li,m);
 			printf("Salvo com sucesso\n");
 		break;
