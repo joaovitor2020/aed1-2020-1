@@ -9,3 +9,7 @@ Funções :
 *Soma  os valores da lista e gera um total
 
 *Possibilidade de carregar um arquivo existente
+
+*VÍDEO MOSTRANDO O FUNCIONAMENTO
+
+https://youtu.be/sksHhTE00yI
